@@ -1,0 +1,42 @@
+# Dépendances
+node_modules/
+
+# Builds / packaging Electron
+out/
+dist/
+release/
+build/
+*.exe
+*.msi
+*.dmg
+*.AppImage
+*.deb
+*.rpm
+*.snap
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Variables d'environnement (clés API, secrets)
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Éditeurs / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Cache / temporaire
+.cache/
+.tmp/
+temp/
+tmp/
