@@ -3,12 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <title>Mon app Electron</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <h1>Bonjour Electron</h1>
-  <button id="btn">Tester IPC</button>
-  <p id="out"></p>
+  <header>
+    <img src="img/Menu.svg" id="menuButton">
+  </header>
+    <nav id="menu" class="menu">
+      <div class="menu-header">
+        <img src="img/Menu.svg" id="menuButton">
+        <span>GargAImel</span>
+        <img src="img/plus.svg" id="newChatButton">
+      </div>
+      <div class="menu-content">
+        <input type="search" placeholder="Rechercher..." id="searchInput">
+        <h3>Chats</h3>
+      </div>
+</nav>
+<div id="overlay" class="overlay"></div>
+  <h2>GargAImel maître du chiffrement, prêt à répondre à tes requêtes pour anéantir les Schtroumpfs !</h2>
+
+  <div class="box">
+    <div class="textbox">
+      <textarea id="userRequest" placeholder="Hi hi ! Que veux-tu savoir ?"></textarea>
+      <br></br>
+      <div class="icons">
+        <div class="options">
+          <img src="img/Icon.svg" onclick="">
+          <img src="img/double arrow.svg" onclick="">
+          <img src="img/mic.svg" onclick="">
+        </div>
+        <img src="img/send.svg" id="sendButton" onclick="sendRequest()">
+      </div>
+    </div>
+  </div>
   <script src="renderer.js"></script>
 </body>
 </html>

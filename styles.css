@@ -1,3 +1,132 @@
+@font-face {
+    font-family: 'San Francisco';
+    src: url('SF-Pro-Display-Medium.otf') format('truetype');
+}
+
 body{
-    background-color: #f0f0f0;
+    background-color: #313131;
+    font-family: 'San Francisco', sans-serif;
+    color: #FFFFFF;
+}
+
+.box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.textbox{
+    background-color: #494949;
+    border: 0.1rem solid #D9D9D9;
+    padding: 1rem;
+    border-radius: 0.8rem;
+    width: 40%;
+    z-index: 1;
+}
+
+#gargAImel {
+    z-index: 0;
+}
+
+textarea{
+    background-color: #494949;
+    min-width: 100%;
+    outline: none;
+    border: none;
+    color: #FFFFFF;
+    field-sizing: content;
+    max-height: 10rem;
+    font-size: 1rem;
+}
+
+textarea:focus{
+    outline: none;
+}
+
+textarea::placeholder{
+    color: #B3B3B3;
+}
+
+h2{
+    color: #FFFFFF;
+    text-align: center;
+}
+
+.options{
+    display: flex;
+    justify-content: left;
+    gap: 1rem;
+}
+
+.options img{
+    width: 1.5rem;
+    height: 1.5rem;
+    cursor: pointer;
+}
+
+.icons{
+    display: flex;
+    justify-content: space-between;
+}
+/* Menu + Zone texte #494949 */
+
+.menu {
+  position: fixed;
+  top: 0;
+  left: -300px;       /* caché hors écran */
+  height: 100%;
+  width: 250px;
+  background: #494949;
+  padding: 20px;
+  transition: left 0.3s ease;
+  z-index: 1000;
+}
+
+.menu.show {
+  left: 0;
+}
+
+.menu a {
+  display: block;
+  padding: 15px;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+.menu a:hover {
+  background: #162c09;
+}
+
+.menu-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #212121;
+  margin-bottom: 8px;
+}
+
+.menu-title {
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0);
+  pointer-events: none;
+  transition: background 0.3s;
+  z-index: 999;
+}
+.overlay.show {
+  background: rgba(0,0,0,0.4);
+  pointer-events: all;
+}
+
+input[type="search"]{
+    border-radius: 0.8rem;
+    min-width: 100%;
+    padding: 0.5rem;
 }
