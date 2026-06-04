@@ -3,6 +3,9 @@
     src: url('SF-Pro-Display-Medium.otf') format('truetype');
 }
 
+.page { display: none; }
+.page.active { display: block; }
+
 body{
     background-color: #313131;
     font-family: 'San Francisco', sans-serif;
@@ -26,6 +29,7 @@ body{
 
 #gargAImel {
     z-index: 0;
+    width: 40%;
 }
 
 textarea{
@@ -64,6 +68,8 @@ h2{
     cursor: pointer;
 }
 
+
+
 .icons{
     display: flex;
     justify-content: space-between;
@@ -94,7 +100,7 @@ h2{
   font-weight: bold;
 }
 .menu a:hover {
-  background: #162c09;
+  background: #212121;
 }
 
 .menu-header {
@@ -129,4 +135,102 @@ input[type="search"]{
     border-radius: 0.8rem;
     min-width: 100%;
     padding: 0.5rem;
+}
+
+header img {
+    padding: 0.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    cursor: pointer;
+
+}
+
+.menu-header img {
+    width: 1.5rem;
+    height: 1.5rem;
+    cursor: pointer;
+}
+
+.options img:hover,
+header img:hover,
+.menu-header img:hover {
+    background-color: #212121;
+    border-radius: 0.3rem;
+    outline: 0.3rem solid #212121;
+}
+
+.titlebar {
+  -webkit-app-region: drag;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0 0 0.1rem;
+}
+
+.titlebar button,
+.titlebar img {
+  -webkit-app-region: no-drag;
+}
+
+.titlebar-right img {
+        width: 1rem;
+        height: 1rem;
+}
+
+
+.titlebar-right img:hover {
+    background-color: #494949;
+    border-radius: 0.3rem;
+    outline: 0.3rem solid #494949;
+}
+
+#closeButton:hover {
+    background-color: #fa2121;
+    outline: 0.3rem solid #fa2121;
+}
+
+
+.discussion-box {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 32px); /* moins la titlebar */
+  padding: 1rem;
+}
+
+#messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.message {
+  max-width: 60%;
+  padding: 0.8rem 1rem;
+  border-radius: 0.8rem;
+}
+
+.message.user {
+  background: #494949;
+  align-self: flex-end;
+}
+
+.message.ai {
+  background: #313131;
+  align-self: flex-start;
+}
+
+.textbox-discussion{
+    background-color: #494949;
+    border: 0.1rem solid #D9D9D9;
+    padding: 1rem;
+    border-radius: 0.8rem;
+    width: 40%;
+    z-index: 1;
+    position: sticky;
+    bottom: 1rem;
+    margin: 0 auto;
 }
