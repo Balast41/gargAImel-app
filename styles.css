@@ -111,6 +111,9 @@ h2{
   padding-bottom: 16px;
   border-bottom: 1px solid #212121;
   margin-bottom: 8px;
+  top: 0;
+  position: sticky;
+  background-color: #494949;
 }
 
 .menu-title {

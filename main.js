@@ -52,12 +52,72 @@ ipcMain.on('win-minimize', (event) => { win.minimize(); });
 ipcMain.on('win-maximize', (event) => { win.isMaximized() ? win.unmaximize() : win.maximize(); });
 ipcMain.on('win-close', (event) => { win.close(); });
 
+// Base de données SQLite
+const Database = require('better-sqlite3');
+const db = new Database(path.join(__dirname, 'gargaimel.db'));
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS conversations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    resume TEXT,
+    date TEXT,
+    user TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    conversation_id INTEGER NOT NULL,
+    sender TEXT NOT NULL,
+    content TEXT NOT NULL,
+    FOREIGN KEY(conversation_id) REFERENCES conversations(id)
+  );
+`);
+
+const stmts = {
+  insertConversation: db.prepare(
+    `INSERT INTO conversations (date) VALUES (?)`
+  ),
+  insertMessage: db.prepare(
+    `INSERT INTO messages (conversation_id, sender, content) VALUES (?, ?, ?)`
+  ),
+  getConversations: db.prepare(
+    `SELECT * FROM conversations ORDER BY date DESC`
+  ),
+  getMessages: db.prepare(
+    `SELECT * FROM messages WHERE conversation_id = ? ORDER BY id ASC`
+  ),
+  updateResume: db.prepare(
+    `UPDATE conversations SET resume = ? WHERE id = ?`
+  ),
+  deleteConversation: db.prepare(
+    `DELETE FROM conversations WHERE id = ?`
+  ),
+};
+
+ipcMain.handle('save-historique', () => {
+  const result = stmts.insertConversation.run(new Date().toISOString());
+  return result.lastInsertRowid;
+});
+
+ipcMain.handle('save-message', (event, { conversationId, sender, content }) => {
+  stmts.insertMessage.run(conversationId, sender, content);
+});
+
 ipcMain.handle('read-historique', () => {
-  try {
-    const filePath = path.join(__dirname, 'historique.json');
-    const data = fs.readFileSync(filePath, 'utf-8');
-    return JSON.parse(data);
-  } catch (e) {
-    return [];
-  }
+  const conversations = stmts.getConversations.all();
+  return conversations.map(conv => ({
+    ...conv,
+    messages: stmts.getMessages.all(conv.id)
+  }));
+});
+
+ipcMain.handle('update-resume', (event, { conversationId, resume }) => {
+  stmts.updateResume.run(resume, conversationId);
+});
+
+ipcMain.handle('delete-conversation', (event, conversationId) => {
+  db.transaction(() => {
+    db.prepare(`DELETE FROM messages WHERE conversation_id = ?`).run(conversationId);
+    stmts.deleteConversation.run(conversationId);
+  })();
 });

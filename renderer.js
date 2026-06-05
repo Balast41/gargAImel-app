@@ -1,25 +1,25 @@
-async function loadHistorique() {
-  const data = await window.api.readHistorique();
-  console.log(data);
-  
-  for (const conv of data.historique) {
-    console.log(conv);
-    const item = document.createElement('input');
-    item.type = 'button';
-    item.value = conv.resume;
-    document.getElementsByClassName('menu-content')[0].appendChild(item);
-    item.addEventListener('click', () => loadChat(data.historique.indexOf(conv)));
-  }
-}
-
-loadHistorique();
-
-
-
 const overlay = document.getElementById('overlay');
 console.log(overlay);
 const filebutton = document.getElementById('fileButton');
 console.log(filebutton);
+const historique = window.api.readHistorique();
+let currentConversationId = null;
+
+async function loadHistorique() {
+  const data = await window.api.readHistorique();
+  const menuContent = document.getElementsByClassName('conversation-list')[0];
+  menuContent.innerHTML = ''; // Clear existing items
+  
+  for (const conv of data) {
+    const item = document.createElement('input');
+    item.type = 'button';
+    item.value = conv.resume || conv.date; // Fallback sur la date si pas de résumé
+    menuContent.appendChild(item);
+    item.addEventListener('click', () => loadChat(conv.id));
+  }
+}
+
+loadHistorique();
 
 function openNav() {
   document.getElementById('menu').style.width = "250px";
@@ -35,9 +35,32 @@ function closeNav() {
 
 overlay.addEventListener('click', closeNav);
 
+let keys = {
+  enter: false,
+  shift: false
+}
+
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') close();
+  if (e.key === 'Enter') keys.enter = true;
+  if (e.key === 'Shift') keys.shift = true;
+
+  if (e.key === 'Escape') closeNav();
+  if (keys.enter && !keys.shift) {
+    e.preventDefault();
+    const userRequestID = document.getElementById('userRequest').value.trim() ? 'userRequest' : 'userRequestDiscussion';
+    sendMessage(userRequestID);
+  } 
 });
+
+addEventListener("keyup", (e) => {
+  if (e.key === "Enter") {
+    keys.enter = false;
+  }
+  if (e.key === "Shift") {
+    keys.shift = false;
+  }
+});
+
 
 
 filebutton.addEventListener('click', () => {
@@ -90,40 +113,77 @@ function addMessageIA(text, sender = 'ia') {
 }
 
 document.getElementById('sendButton').addEventListener('click', () => {
-  const userInput = document.getElementById('userRequest').value.trim();
-  if (!userInput) return;
-
-  console.log('Requête utilisateur :', userInput);
-  addMessageUser(userInput, 'user');
-  document.getElementById('userRequest').value = '';
-  navigate('page-discussion');
+  sendMessage('userRequest');
 }
 );
 
 document.getElementById('sendButtonDiscussion').addEventListener('click', () => {
-  const userInput = document.getElementById('userRequestDiscussion').value.trim();
-  if (!userInput) return;
-
-  addMessageUser(userInput, 'user');
-  document.getElementById('userRequestDiscussion').value = '';
+  sendMessage('userInputDiscussion');
 });
+
+
+async function sendMessage(requestID) {
+  const userInput = document.getElementById(requestID).value.trim();
+  if (!userInput) {
+    console.log('Message vide, non envoyé.');
+    return;
+  }
+
+  if (document.getElementById('page-chat').classList.contains('active')) {
+    const messagesContent = document.getElementById('messages');
+    messagesContent.innerHTML = ''; // Clear existing items
+    console.log('Requête utilisateur :', userInput);
+    addMessageUser(userInput, 'user');
+    document.getElementById(requestID).value = "";
+    navigate('page-discussion');
+    currentConversationId = await window.api.saveHistorique();
+    loadHistorique();
+  } else {
+    console.log('Requête utilisateur :', userInput);
+    addMessageUser(userInput, 'user');
+    document.getElementById(requestID).value = "";
+  }
+  await window.api.saveMessage({
+    conversationId: currentConversationId,
+    sender: 'user',
+    content: userInput
+  });
+}
 
 document.getElementById('newChatButton').addEventListener('click', () => {
   document.getElementById('messages').innerHTML = '';
   navigate('page-chat');
 });
 
-async function loadChat(index){
-  // Charger la conversation à partir de l'index
-  // Afficher les messages dans la page de discussion
+async function loadChat(conversationId) {
   const data = await window.api.readHistorique();
-  const conv = data.historique[index];
+  const conv = data.find(c => c.id === conversationId);
+
   if (conv) {
+    currentConversationId = conversationId;
     navigate('page-discussion');
     document.getElementById('messages').innerHTML = '';
-    for (let i = 0; i < conv.user_conv.length; i++) {
-      addMessageUser(conv.user_conv[i]);
-      addMessageIA(conv.ia_conv[i]);
+
+    for (const msg of conv.messages) {
+      if (msg.sender === 'user') {
+        addMessageUser(msg.content);
+      } else if (msg.sender === 'ia') {
+        addMessageIA(msg.content);
+      }
     }
   }
 }
+
+async function IAResponse(content) {
+  addMessageIA(content, 'ia');
+  await window.api.saveMessage({
+  conversationId: currentConversationId,
+  sender: 'ia',
+  content: content
+});
+}
+
+document.getElementById('newChatButton').addEventListener('click', () => {
+  navigate('page-chat');
+  closeNav();
+});
