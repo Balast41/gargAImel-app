@@ -1,5 +1,6 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
+const fs = require('fs');
 let win;
 
 
@@ -12,10 +13,11 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,   // obligatoire en prod
       nodeIntegration: false,   // ne pas exposer Node dans la page
+      sandbox:false
     },
   });
 
-  win.loadFile('index.html');
+  win.loadFile('app.html');
 }
 
 app.whenReady().then(createWindow);
@@ -49,3 +51,13 @@ ipcMain.handle('open-file-dialog', async () => {
 ipcMain.on('win-minimize', (event) => { win.minimize(); });
 ipcMain.on('win-maximize', (event) => { win.isMaximized() ? win.unmaximize() : win.maximize(); });
 ipcMain.on('win-close', (event) => { win.close(); });
+
+ipcMain.handle('read-historique', () => {
+  try {
+    const filePath = path.join(__dirname, 'historique.json');
+    const data = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(data);
+  } catch (e) {
+    return [];
+  }
+});

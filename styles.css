@@ -16,6 +16,8 @@ body{
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    margin: auto 30%;
 }
 
 .textbox{
@@ -23,13 +25,13 @@ body{
     border: 0.1rem solid #D9D9D9;
     padding: 1rem;
     border-radius: 0.8rem;
-    width: 40%;
+    width: 100%;
     z-index: 1;
 }
 
 #gargAImel {
     z-index: 0;
-    width: 40%;
+    width: 100%;
 }
 
 textarea{
@@ -39,6 +41,7 @@ textarea{
     border: none;
     color: #FFFFFF;
     field-sizing: content;
+    max-width: 100%;
     max-height: 10rem;
     font-size: 1rem;
 }
@@ -78,18 +81,15 @@ h2{
 
 .menu {
   position: fixed;
-  top: 0;
-  left: -300px;       /* caché hors écran */
-  height: 100%;
-  width: 250px;
-  background: #494949;
   padding: 20px;
+  height: 100%;
+  top: 0;
+  left: -50px;       /* caché hors écran */
+  width: 0px;
+  overflow-x: hidden;
+  background: #494949;
   transition: left 0.3s ease;
   z-index: 1000;
-}
-
-.menu.show {
-  left: 0;
 }
 
 .menu a {
@@ -99,6 +99,7 @@ h2{
   text-decoration: none;
   font-weight: bold;
 }
+
 .menu a:hover {
   background: #212121;
 }
@@ -166,6 +167,9 @@ header img:hover,
   align-items: center;
   justify-content: space-between;
   padding: 0 0 0 0.1rem;
+  top: 0;
+  position:sticky;
+  background-color: #313131;
 }
 
 .titlebar button,
@@ -177,6 +181,7 @@ header img:hover,
         width: 1rem;
         height: 1rem;
 }
+
 
 
 .titlebar-right img:hover {
@@ -233,4 +238,35 @@ header img:hover,
     position: sticky;
     bottom: 1rem;
     margin: 0 auto;
+}
+
+.titlebar-left button {
+    background-color: #313131;
+    border: none;
+}
+
+#menuButton1 {
+    background-color: #494949;
+    border: none;
+}
+
+#menuImg {
+    border: none;
+}
+
+.menu-content input[type="button"]{
+    background-color: transparent;
+    border: none;
+    color: #FFFFFF;
+    text-align: left;
+    width: 100%;
+    padding: 0.5rem 0;
+    font-size: 1rem;
+    outline: 0.1rem solid transparent;
+}
+
+.menu-content input[type="button"]:hover {
+    background-color: #212121;
+    outline: 0.1rem solid #212121;
+    
 }
