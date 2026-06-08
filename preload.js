@@ -1,6 +1,14 @@
 const { contextBridge, ipcRenderer } = require('electron');
-const fs = require('fs');
-const path = require('path');
+const { marked } = require('marked');
+
+marked.setOptions({
+  breaks: true,
+  gfm: true,
+});
+
+function parseMarkdown(markdown) {
+  return marked.parse(markdown ?? '');
+}
 
 contextBridge.exposeInMainWorld('api', {
   openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),
@@ -8,8 +16,9 @@ contextBridge.exposeInMainWorld('api', {
   maximize: () => ipcRenderer.send('win-maximize'),
   close: () => ipcRenderer.send('win-close'),
   readHistorique: () => ipcRenderer.invoke('read-historique'),
-  saveHistorique: () => ipcRenderer.invoke('save-historique'),
+  saveHistorique: (resume) => ipcRenderer.invoke('save-historique', resume),
   saveMessage: (data) => ipcRenderer.invoke('save-message', data),
   updateResume: (data) => ipcRenderer.invoke('update-resume', data),
-  deleteConversation: (id) => ipcRenderer.invoke('delete-conversation', id)
+  deleteConversation: (id) => ipcRenderer.invoke('delete-conversation', id),
+  parseMarkdown,
 });

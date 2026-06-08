@@ -5,15 +5,43 @@ console.log(filebutton);
 const historique = window.api.readHistorique();
 let currentConversationId = null;
 
+function formatConversationDate(isoDate) {
+  return new Date(isoDate).toLocaleString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+function getFirstMessage(conv) {
+  return conv.resume
+    || conv.messages?.find((m) => m.sender === 'user')?.content
+    || conv.messages?.[0]?.content;
+}
+
+function getConversationTitle(conv) {
+  const firstMessage = getFirstMessage(conv);
+  const date = formatConversationDate(conv.date);
+  if (firstMessage) {
+    const preview = firstMessage.length > 40 ? `${firstMessage.slice(0, 39)}…` : firstMessage;
+    return `${preview} — ${date}`;
+  }
+  return date;
+}
+
 async function loadHistorique() {
   const data = await window.api.readHistorique();
   const menuContent = document.getElementsByClassName('conversation-list')[0];
-  menuContent.innerHTML = ''; // Clear existing items
-  
+  menuContent.innerHTML = '';
+
   for (const conv of data) {
     const item = document.createElement('input');
     item.type = 'button';
-    item.value = conv.resume || conv.date; // Fallback sur la date si pas de résumé
+    const title = getConversationTitle(conv);
+    item.value = title;
+    item.title = getFirstMessage(conv) || conv.date;
     menuContent.appendChild(item);
     item.addEventListener('click', () => loadChat(conv.id));
   }
@@ -103,11 +131,16 @@ function addMessageUser(text, sender = 'user') {
   messages.scrollTop = messages.scrollHeight;
 }
 
+function renderMarkdown(text) {
+  const html = window.api.parseMarkdown(text);
+  return DOMPurify.sanitize(html);
+}
+
 function addMessageIA(text, sender = 'ia') {
   const messages = document.getElementById('messages');
   const msg = document.createElement('div');
-  msg.classList.add('message', sender);
-  msg.textContent = text;
+  msg.classList.add('message', sender, 'markdown');
+  msg.innerHTML = renderMarkdown(text);
   messages.appendChild(msg);
   messages.scrollTop = messages.scrollHeight;
 }
@@ -136,7 +169,7 @@ async function sendMessage(requestID) {
     addMessageUser(userInput, 'user');
     document.getElementById(requestID).value = "";
     navigate('page-discussion');
-    currentConversationId = await window.api.saveHistorique();
+    currentConversationId = await window.api.saveHistorique(userInput);
     loadHistorique();
   } else {
     console.log('Requête utilisateur :', userInput);
@@ -153,6 +186,10 @@ async function sendMessage(requestID) {
 document.getElementById('newChatButton').addEventListener('click', () => {
   document.getElementById('messages').innerHTML = '';
   navigate('page-chat');
+});
+
+document.getElementById('micButton').addEventListener('click', () => {
+  navigate('page-audio');
 });
 
 async function loadChat(conversationId) {

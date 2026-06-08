@@ -8,6 +8,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
+    "seed:markdown": "electron seed-markdown-test.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
@@ -15,6 +16,8 @@
     "electron": "^41.7.1"
   },
   "dependencies": {
-    "better-sqlite3": "^12.10.0"
+    "better-sqlite3-multiple-ciphers": "^12.10.0",
+    "dompurify": "^3.2.6",
+    "marked": "^18.0.5"
   }
 }
