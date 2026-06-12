@@ -182,7 +182,7 @@ header img:hover,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 0 0 0.1rem;
+  padding: 8px 0 0 0.1rem;
   top: 0;
   position:sticky;
   background-color: #313131;
@@ -253,6 +253,40 @@ header img:hover,
   align-self: flex-start;
 }
 
+#messagesAudio {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 50%;
+  margin: 0 auto;
+  padding: 1rem 0;
+  scrollbar-width: none;
+}
+
+#messagesAudio::-webkit-scrollbar {
+  display: none;                /* Chrome / Electron */
+}
+
+.messageAudio {
+  max-width: 60%;
+  padding: 0.8rem 1rem;
+  border-radius: 0.8rem;
+}
+
+.messageAudio.user {
+  background: #494949;
+  align-self: flex-end;
+}
+
+.messageAudio.ai {
+  background: #313131;
+  align-self: flex-start;
+}
+
+
 .textbox-discussion{
     background-color: #494949;
     border: 0.1rem solid #D9D9D9;
@@ -303,29 +337,54 @@ header img:hover,
     padding: 0.5rem;
 }
 
-.gargAudio {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.textbox-audio{
-    background-color: #494949;
-    border: 0.1rem solid #D9D9D9;
-    padding: 1rem;
-    border-radius: 0.8rem;
-    width: 40%;
-    z-index: 1;
-    position: sticky;
-    bottom: 1rem;
-    margin: 0 auto;
+#page-audio.page.active {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 #page-audio .discussion-box {
-    justify-content: center;
+  justify-content: flex-start;
 }
 
+#messagesAudio {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;          /* ← scrollable */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(50%, 700px);
+  max-width: calc(100% - 2rem);
+  margin: 0 auto;
+  padding: 1rem 0;
+  scrollbar-width: none;
+}
+
+#messagesAudio::-webkit-scrollbar {
+  display: none;
+}
+
+.gargAudio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.textbox-audio {
+  background-color: #494949;
+  border: 0.1rem solid #D9D9D9;
+  padding: 1rem;
+  border-radius: 0.8rem;
+  width: min(40%, 500px);
+  max-width: calc(100% - 2rem);
+  box-sizing: border-box;
+  flex-shrink: 0;
+  margin: 0 auto 1rem;
+  /* retire position sticky — inutile dans un flex column */
+}
 #canvas {
     padding: 1rem;
     width: 30%;
@@ -452,4 +511,116 @@ header img:hover,
 .message.markdown input[type="checkbox"] {
   margin-right: 0.4em;
   accent-color: #6eb5ff;
+}
+
+
+
+/* Typing indicator */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.8rem 1rem;
+  background: #313131;
+  border-radius: 0.8rem;
+  align-self: flex-start;
+  width: fit-content;
+}
+
+.typing-indicator span {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: #B3B3B3;
+  border-radius: 50%;
+  animation: typing-bounce 1.2s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30%            { transform: translateY(-0.4rem); opacity: 1; }
+}
+
+/* Konami theme */
+body.konami {
+  background-color: #0a0a2e !important;
+  color: #00ff41 !important;
+  font-family: 'Courier New', monospace !important;
+  transition: all 0.5s ease;
+}
+
+body.konami .textbox,
+body.konami .textbox-discussion,
+body.konami .textbox-audio {
+  background-color: #0d0d3b !important;
+  border-color: #00ff41 !important;
+}
+
+body.konami textarea {
+  background-color: #0d0d3b !important;
+  color: #00ff41 !important;
+  font-family: 'Courier New', monospace !important;
+}
+
+body.konami textarea::placeholder {
+  color: #00aa2b !important;
+}
+
+body.konami .message.user {
+  background-color: #0d0d3b !important;
+  border: 1px solid #00ff41;
+  color: #00ff41 !important;
+}
+
+body.konami .message.ia,
+body.konami .message.markdown {
+  color: #00ff41 !important;
+}
+
+body.konami .menu {
+  background-color: #0d0d3b !important;
+}
+
+body.konami .menu-header {
+  background-color: #0d0d3b !important;
+  border-color: #00ff41 !important;
+}
+
+body.konami .titlebar {
+  background-color: #0a0a2e !important;
+}
+
+body.konami h2 {
+  color: #00ff41 !important;
+  text-shadow: 0 0 10px #00ff41;
+}
+
+body.konami .conversation-list input[type="button"] {
+  color: #00ff41 !important;
+}
+
+/* Texte qui clignote */
+@keyframes konami-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+#konamiMsg {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #0a0a2e;
+  border: 2px solid #00ff41;
+  color: #00ff41;
+  font-family: 'Courier New', monospace;
+  font-size: 1.2rem;
+  padding: 1.5rem 2rem;
+  border-radius: 0.5rem;
+  z-index: 9999;
+  text-align: center;
+  box-shadow: 0 0 30px #00ff41;
+  animation: konami-blink 1s steps(1) 3;
 }

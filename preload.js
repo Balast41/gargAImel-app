@@ -20,5 +20,7 @@ contextBridge.exposeInMainWorld('api', {
   saveMessage: (data) => ipcRenderer.invoke('save-message', data),
   updateResume: (data) => ipcRenderer.invoke('update-resume', data),
   deleteConversation: (id) => ipcRenderer.invoke('delete-conversation', id),
+  generateTts: (text) => ipcRenderer.invoke('generate-tts', text),
+  sendPayload: (content, session_id) => ipcRenderer.invoke('send-payload', content, String(session_id)),
   parseMarkdown,
 });

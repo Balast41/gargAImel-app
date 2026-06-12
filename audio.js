@@ -74,3 +74,13 @@ function visualize(audioBuffer, audioContext) {
 
   draw()
 }
+
+async function playWavBase64(base64, onStart) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  const audioContext = new AudioContext();
+  const audioBuffer = await audioContext.decodeAudioData(bytes.buffer);
+  visualize(audioBuffer, audioContext);
+  onStart?.();
+}

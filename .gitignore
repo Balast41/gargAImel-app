@@ -40,3 +40,20 @@ Desktop.ini
 .tmp/
 temp/
 tmp/
+
+# Dossiers
+API_TTS/
+audio/
+gargaimel/
+GargAimel_pinyin/
+langflow_data/
+ollama_data/
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+docker-entrypoint.sh
+
+# Fichiers de tests
+

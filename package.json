@@ -9,6 +9,9 @@
   "scripts": {
     "start": "electron .",
     "seed:markdown": "electron seed-markdown-test.js",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up",
+    "docker:seed": "docker compose run --rm gargaimel seed",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
