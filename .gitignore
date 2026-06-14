@@ -48,6 +48,7 @@ gargaimel/
 GargAimel_pinyin/
 langflow_data/
 ollama_data/
+gargAimel-win32-x64/
 
 # Docker
 .dockerignore
@@ -55,5 +56,7 @@ Dockerfile
 docker-compose.yml
 docker-entrypoint.sh
 
-# Fichiers de tests
+# archives
+*.zip
+*.tar
 

@@ -91,7 +91,12 @@ document.addEventListener('keydown', e => {
       injectionSQL();
 
     }
-    sendMessage(userRequestID);
+    if (document.getElementById('page-chat').classList.contains('active') || document.getElementById('page-discussion').classList.contains('active')) {
+      sendMessage(userRequestID);
+    }
+    if (document.getElementById('page-audio').classList.contains('active')) {
+      sendAudioMessage();
+    }
   } 
 });
 
@@ -229,20 +234,19 @@ async function sendMessage(requestID) {
     addMessageUser(userInput, 'user');
     document.getElementById(requestID).value = "";
     navigate('page-discussion');
-    currentConversationId = await window.api.saveHistorique(userInput,null);
+    currentConversationId = await window.api.saveHistorique(userInput);
     console.log('ID de la conversation créée :', currentConversationId);
     loadHistorique();
-    showTypingIndicator();
-    response = await window.api.sendPayload(userInput,currentConversationId);
-    removeTypingIndicator();
+
   } else {
     console.log('Requête utilisateur :', userInput);
     addMessageUser(userInput, 'user');
     document.getElementById(requestID).value = "";
-    showTypingIndicator();
-    response = await window.api.sendPayload(userInput,currentConversationId);
-    removeTypingIndicator();
+
   }
+  showTypingIndicator();
+  response = await window.api.sendPayload(userInput,currentConversationId);
+  removeTypingIndicator();
   await window.api.saveMessage({
     conversationId: currentConversationId,
     sender: 'user',
@@ -331,12 +335,12 @@ async function sendAudioMessage() {
   // 1. Réponse IA (réutilise la logique chat)
   document.getElementById("gargAImelImg").hidden = true;
   addMessageUserAudio(prompt, 'user');
-  currentConversationId = await window.api.saveHistorique(prompt,null);
+  currentConversationId = await window.api.saveHistorique(prompt);
+  console.log('ID de la conversation créée :', currentConversationId);
   loadHistorique();
   console.log('Requête utilisateur (audio) :', prompt);
-  const sessionId = currentConversationId ?? crypto.randomUUID();
   showTypingIndicatorAudio();
-  response = await window.api.sendPayload(prompt, sessionId);
+  response = await window.api.sendPayload(prompt, currentConversationId);
   await window.api.saveMessage({
     conversationId: currentConversationId,
     sender: 'user',
@@ -351,6 +355,16 @@ async function sendAudioMessage() {
   removeTypingIndicator();
 
 }
+
+document.getElementById('removeDiscussion').addEventListener('click', () => {
+    if (currentConversationId) {
+      window.api.deleteConversation(currentConversationId).then(() => {
+        console.log('Conversation supprimée :', currentConversationId);
+        currentConversationId = null;
+        loadHistorique();
+        navigate('page-chat');
+      });}
+});
 
 // Malices de GargAImel
 

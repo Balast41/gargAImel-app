@@ -7,14 +7,14 @@ const apiKey = 'sk-bhoZYcmJakyYM1Uytfpev3x_PVAPzKhGSVVQ_gOyfXQ';
 const REF_AUDIO = path.join(__dirname, 'audio', '001.wav');
 const REF_TEXT = "La forêt empeste le bonheur et c'est Horripilant. Ça ne peut pas durer, et ça ne durera pas longtemps, c'est moi, Gargamel, qui vous le dis.";
 const { spawn } = require('child_process');
+const TTS_URL = process.env.TTS_URL || 'http://127.0.0.1:8000';
+const LANGFLOW_URL = process.env.LANGFLOW_URL || 'http://localhost:8080';
 
 function startTTS() {
   const backend = spawn('uvicorn', [
     'API_TTS.api_TTS:app',
-    '--host',
-    '127.0.0.1',
-    '--port',
-    '8000'
+    '--host', '127.0.0.1',
+    '--port', '8000'
   ], {
     stdio: 'inherit',
     shell: true
@@ -23,9 +23,8 @@ function startTTS() {
   backend.on('close', (code) => {
     console.log('TTS backend stopped with code', code);
   });
-
-  return backend;
 }
+
 
 
 ipcMain.handle('send-payload', async (event, content,session_id) => {
@@ -41,7 +40,7 @@ ipcMain.handle('send-payload', async (event, content,session_id) => {
   };
 
   try {
-    const response = await fetch('http://localhost:8080/api/v1/run/37f4bc5b-8f98-4a9c-b7cc-cf52fe2136d0', {
+    const response = await fetch(`${LANGFLOW_URL}/api/v1/run/37f4bc5b-8f98-4a9c-b7cc-cf52fe2136d0`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -56,7 +55,7 @@ ipcMain.handle('send-payload', async (event, content,session_id) => {
 
     return iaText;
   } catch (err) {
-    console.error(err);
+    console.error('send-payload error:', err);
     throw err;
   }
   
@@ -140,8 +139,11 @@ app.whenReady().then(() => {
   initDatabase();
   initStmts();
   createWindow();
-  startTTS();
+  if (!process.env.TTS_URL) {
+    startTTS();
+  }
 });
+
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
@@ -168,11 +170,10 @@ ipcMain.handle('open-file-dialog', async () => {
   return result.canceled ? null : result.filePaths[0];
 });
 
-ipcMain.handle('save-historique', (event, resume, session_id) => {
-  if (session_id == null) {
-    session_id = crypto.randomUUID();
-  }
+ipcMain.handle('save-historique', (event, resume) => {
+  session_id = crypto.randomUUID();
   const result = stmts.insertConversation.run(new Date().toISOString(), resume, String(session_id));
+  console.log('save-historique — retour :', session_id);
   return session_id;
 });
 
@@ -200,18 +201,16 @@ ipcMain.handle('delete-conversation', (event, conversationId) => {
 });
 
 ipcMain.handle('generate-tts', async (event, genText) => {
-  // Remplace les caractères non-ASCII problématiques
   const cleanText = genText
-    .normalize('NFD')                          // décompose les accents
-    .replace(/[\u0300-\u036f]/g, '')           // supprime les diacritiques combinants
-    .replace(/[\u2010-\u2015]/g, '-')          // tirets typographiques → tiret simple
-    .replace(/[\u2018\u2019]/g, "'")           // guillemets courbes → apostrophe
-    .replace(/[\u201C\u201D]/g, '"')           // guillemets doubles courbes → "
-    .replace(/[\u2026]/g, '...')               // ellipse → ...
-    .replace(/[^\x00-\xFF]/g, '');             // supprime tout ce qui dépasse Latin-1
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\u2010-\u2015]/g, '-')
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2026]/g, '...')
+    .replace(/[^\x00-\xFF]/g, '');
 
-  console.log('Génération TTS pour le texte :', cleanText);
-  const response = await fetch('http://127.0.0.1:8000/tts', {
+  const response = await fetch(`${TTS_URL}/tts`, {  // ← utilise la variable
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -220,15 +219,16 @@ ipcMain.handle('generate-tts', async (event, genText) => {
       gen_text: cleanText,
       seed: 42,
     }),
+    signal: AbortSignal.timeout(600000)  // ← ajoute un timeout de 30 secondes
   });
+
   if (!response.ok) {
     const err = await response.text();
     throw new Error(`TTS failed: ${response.status} ${err}`);
   }
+
   const buffer = Buffer.from(await response.arrayBuffer());
   const outPath = path.join(__dirname, 'audio', `audio_${Date.now()}.wav`);
   fs.writeFileSync(outPath, buffer);
-  console.log('TTS sauvegardé :', outPath);
-  return buffer.toString('base64'); // pratique pour passer par IPC
+  return buffer.toString('base64');
 });
-
